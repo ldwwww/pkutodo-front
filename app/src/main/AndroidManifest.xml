@@ -23,7 +23,7 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
+                <!--app 切入点-->
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
@@ -31,6 +31,9 @@
 
         <!-- 注册 WelcomeActivity -->
         <activity android:name=".activity.WelcomeActivity">
+        </activity>
+
+        <activity android:name=".activity.LoginActivity">
         </activity>
 
         <activity android:name=".activity.RegisterActivity">

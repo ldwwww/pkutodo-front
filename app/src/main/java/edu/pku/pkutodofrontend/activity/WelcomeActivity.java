@@ -1,6 +1,7 @@
 package edu.pku.pkutodofrontend.activity;
 
 import android.os.Bundle;
+import android.widget.EditText;
 
 import androidx.appcompat.app.AppCompatActivity;
 

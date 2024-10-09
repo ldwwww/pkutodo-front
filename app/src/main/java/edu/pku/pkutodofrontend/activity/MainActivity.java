@@ -9,119 +9,121 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
-import org.json.JSONObject;
+import java.io.IOException;
 
 import edu.pku.pkutodofrontend.R;
-import edu.pku.pkutodofrontend.utils.APIUtils;
+import edu.pku.pkutodofrontend.utils.StringUtils;
+import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.FormBody;
-import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
-import retrofit2.http.POST;
 
 /**
  * 登录页面
  */
 public class MainActivity extends AppCompatActivity {
-    EditText name,pwd;
-    Button btnlogin,btngotoreg;
 
+    EditText username, password;
+    Button login;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
-//        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-//            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-//            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-//            return insets;
-//        });
-        name = this.findViewById(R.id.name);            //用户名输入框
-        pwd = this.findViewById(R.id.pwd);              //密码输入框
-        btnlogin = this.findViewById(R.id.login);         //登录按钮
-        btngotoreg = this.findViewById(R.id.gotoreg);      //注册按钮
 
-        // 设置登录按钮点击事件
-        btnlogin.setOnClickListener(new View.OnClickListener() {
+        username = findViewById(R.id.name);
+        password = findViewById(R.id.pwd);
+        login = findViewById(R.id.login);
+        login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // 获取输入值
-                String username = name.getText().toString();
-                String password = pwd.getText().toString();
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            // 构造请求体
-                            String form = "{\n" +
-                                    "  \"username\": \"" + username+ "\",\n" +
-                                    "  \"password\": \"" + password + "\"\n" +
-                                    "}";
 
-                            MediaType JSON = MediaType.get("application/json; charset=utf-8");
-                            RequestBody requestBody = RequestBody.create(JSON, form);
-
-                            System.out.println("cons json");
-                            OkHttpClient client = new OkHttpClient();
-                            Request request = new Request.Builder()
-                                    .url(APIUtils.LOGIN)
-                                    .post(requestBody)
-                                    .build();
-
-                            Response response = client.newCall(request).execute();
-                            final String responseData = response.body().string();
-                            System.out.println(responseData);
-
-                            // 解析 JSON 响应
-                            JSONObject jsonResponse = new JSONObject(responseData);
-
-                            // 校验 msg 字段
-                            String msg = jsonResponse.getString("msg");
-                            if (msg.equals("ok")) {
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        Toast.makeText(MainActivity.this, "登录成功", Toast.LENGTH_SHORT).show();
-                                        Intent intent = new Intent(MainActivity.this, WelcomeActivity.class);
-                                        startActivity(intent);
-                                    }
-                                });
-                            } else if (msg.equals("用户名或密码错误")) {
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        Toast.makeText(MainActivity.this, "用户名或密码错误", Toast.LENGTH_SHORT).show();
-                                    }
-                                });
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Toast.makeText(MainActivity.this, "网络错误", Toast.LENGTH_SHORT).show();
-                                }
-                            });
-                        }
-                    }
-                }).start();
+                boolean legal = true;
+                String usernameStr = username.getText().toString();
+                String passwordStr = password.getText().toString();
+                if(usernameStr.isEmpty() || passwordStr.isEmpty()) {
+                    Toast.makeText(MainActivity.this, "用户名或密码不能为空", Toast.LENGTH_SHORT).show();
+                    legal = false;
+                }
+                if(legal) {
+                    loginWithIAAA(usernameStr, passwordStr);
+                }
             }
         });
+    }
 
-        btngotoreg.setOnClickListener(new View.OnClickListener() {
+    private void loginWithIAAA(final String username, final String password) {
+        // 创建 OkHttpClient 客户端
+        OkHttpClient client = new OkHttpClient();
+
+        // 构建表单数据
+        RequestBody formBody = new FormBody.Builder()
+                .add("appid", "portal2017")
+                .add("userName", username)
+                .add("password", password)
+                .add("randCode", "")
+                .add("smsCode", "")
+                .add("otpCode", "")
+                .add("redirUrl", "https://portal.pku.edu.cn/portal2017/ssoLogin.do")
+                .build();
+
+        // 构建请求
+        Request request = new Request.Builder()
+                .url("https://iaaa.pku.edu.cn/iaaa/oauthlogin.do")
+                .post(formBody)
+                .build();
+
+        // 发送请求
+        client.newCall(request).enqueue(new Callback() {
             @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, RegisterActivity.class);
-                startActivity(intent);
+            public void onFailure(Call call, IOException e) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(MainActivity.this, "请求失败: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+
+                final String responseData = response.body().string();
+                if (!response.isSuccessful()) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            System.out.println("Response Data: " + responseData);
+                            Toast.makeText(MainActivity.this, "响应错误: " + response.code(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    return;
+                }
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        /**
+                         *  success Response Data: {"success":true,"token":"e2f5102228419d99b2f8984f0fe0b5da"}
+                         *  error Response Data: {"success":false,"errors":{"code":"E01","msg":"User ID or Password is NOT correct."}}
+                         */
+                        String success = StringUtils.extractString(responseData, "success");
+                        if (success.equals("false")) {
+                            Toast.makeText(MainActivity.this, "用户名或密码错误！", Toast.LENGTH_LONG).show();
+                        }else{
+                            Toast.makeText(MainActivity.this, "登录成功！", Toast.LENGTH_LONG).show();
+                            String token = StringUtils.extractString(responseData, "token");
+                            Intent intent = new Intent(MainActivity.this, WelcomeActivity.class);
+                            startActivity(intent);
+                        }
+                    }
+                });
             }
         });
     }
 }
+

@@ -24,8 +24,8 @@ import okhttp3.Response;
 
 public class RegisterActivity extends AppCompatActivity {
 
-    EditText email,code,name,pwd;
-    Button btnbacklogin,btnreg,btnemail;
+    EditText email, code, name, pwd;
+    Button btnbacklogin, btnreg, btnemail;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,13 +49,13 @@ public class RegisterActivity extends AppCompatActivity {
             }
         });
 
-        btnreg.setOnClickListener(new View.OnClickListener(){
+        btnreg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                boolean legal = true ;
+                boolean legal = true;
                 // 获取输入值
                 String emailAddress = email.getText().toString();
-                if(legal && emailAddress.isEmpty()){
+                if (legal && emailAddress.isEmpty()) {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -63,7 +63,7 @@ public class RegisterActivity extends AppCompatActivity {
                         }
                     });
                     legal = false;
-                }else if (!emailAddress.matches("\"^[^@]+@pku\\.edu\\.cn$|^[^@]+@stu\\.pku\\.edu\\.cn$")){
+                } else if (!emailAddress.matches("\"^[^@]+@pku\\.edu\\.cn$|^[^@]+@stu\\.pku\\.edu\\.cn$")) {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -74,7 +74,7 @@ public class RegisterActivity extends AppCompatActivity {
                 }
 
                 String verifyCode = code.getText().toString();
-                if (legal){
+                if (legal) {
                     if (verifyCode.isEmpty()) {
                         runOnUiThread(new Runnable() {
                             @Override
@@ -84,8 +84,8 @@ public class RegisterActivity extends AppCompatActivity {
                         });
                         legal = false;
                         // 六位整数验证码
-                    } else if (!verifyCode.matches("^[0-9]{6}$")){
-                        runOnUiThread(new Runnable(){
+                    } else if (!verifyCode.matches("^[0-9]{6}$")) {
+                        runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 Toast.makeText(RegisterActivity.this, "请填写六位数验证码", Toast.LENGTH_SHORT).show();
@@ -118,7 +118,7 @@ public class RegisterActivity extends AppCompatActivity {
                     legal = false;
                 }
 
-                if(legal){
+                if (legal) {
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
@@ -127,10 +127,9 @@ public class RegisterActivity extends AppCompatActivity {
                                 String form = "{\n" +
                                         "  \"email\": \"" + emailAddress + "\",\n" +
                                         "  \"verifyCode\": " + verifyCode + ",\n" +
-                                        "  \"username\": \"" + username+ "\",\n" +
+                                        "  \"username\": \"" + username + "\",\n" +
                                         "  \"password\": \"" + password + "\"\n" +
                                         "}";
-
 
                                 MediaType JSON = MediaType.get("application/json; charset=utf-8");
                                 RequestBody requestBody = RequestBody.create(JSON, form);
@@ -164,7 +163,7 @@ public class RegisterActivity extends AppCompatActivity {
                                             Toast.makeText(RegisterActivity.this, "验证码过期或不存在", Toast.LENGTH_SHORT).show();
                                         }
                                     });
-                                } else if (msg.equals("验证码错误")){
+                                } else if (msg.equals("验证码错误")) {
                                     runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
@@ -194,7 +193,7 @@ public class RegisterActivity extends AppCompatActivity {
             }
         });
 
-        btnemail.setOnClickListener(new View.OnClickListener(){
+        btnemail.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
@@ -208,7 +207,7 @@ public class RegisterActivity extends AppCompatActivity {
                         }
                     });
                     legal = false;
-                } else if (!emailAddress.matches("\"^[^@]+@pku\\.edu\\.cn$|^[^@]+@stu\\.pku\\.edu\\.cn$")){
+                } else if (!emailAddress.matches("\"^[^@]+@pku\\.edu\\.cn$|^[^@]+@stu\\.pku\\.edu\\.cn$")) {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -217,7 +216,7 @@ public class RegisterActivity extends AppCompatActivity {
                     });
                     legal = false;
                 }
-                if (legal){
+                if (legal) {
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
@@ -244,21 +243,21 @@ public class RegisterActivity extends AppCompatActivity {
 
                                 // 校验 msg 字段
                                 String msg = jsonResponse.getString("msg");
-                                if (msg.equals("ok")){
+                                if (msg.equals("ok")) {
                                     runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
                                             Toast.makeText(RegisterActivity.this, "验证码已发送， 请查收", Toast.LENGTH_SHORT).show();
                                         }
                                     });
-                                } else if (msg.equals("邮箱已注册")){
+                                } else if (msg.equals("邮箱已注册")) {
                                     runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
                                             Toast.makeText(RegisterActivity.this, "邮箱已注册", Toast.LENGTH_SHORT).show();
                                         }
                                     });
-                                } else{
+                                } else {
                                     runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
@@ -266,7 +265,7 @@ public class RegisterActivity extends AppCompatActivity {
                                         }
                                     });
                                 }
-                            }  catch (Exception e) {
+                            } catch (Exception e) {
                                 e.printStackTrace();
                                 runOnUiThread(new Runnable() {
                                     @Override

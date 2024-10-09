@@ -9,4 +9,5 @@ public class APIUtils {
     public static final String LOGIN = BASE_URL + "/user/login";
     public static final String REGISTER = BASE_URL + "/user/register";
     public static final String SEND_EMAIL = BASE_URL + "/user/sendEmail";
+    public static final String COURSE_TABLE= "https://portal.pku.edu.cn/publicQuery/ctrl/topic/myCourseTable/getCourseInfo.do?xndxq=24-25-1";
 }
